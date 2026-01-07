@@ -1,6 +1,7 @@
 package ec.edu.sistemalicencias.controller;
 
-
+import ec.edu.sistemalicencias.model.entities.Usuario;
+import ec.edu.sistemalicencias.model.exceptions.UsuarioException;
 import ec.edu.sistemalicencias.service.UsuarioService;
 import ec.edu.sistemalicencias.view.UserManagementView;
 
@@ -12,18 +13,12 @@ import java.util.List;
  * Controlador del módulo de usuarios.
  * Gestiona la comunicación entre la vista de usuarios y el servicio.
  * Permite CRUD y refresco de tabla.
- * @author Sistema Licencias Ecuador
- * @version 1.0
  */
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final UserManagementView userManagementView;
 
-    /**
-     * Constructor que inicializa el servicio y la vista.
-     * @param view Vista de gestión de usuarios
-     */
     public UsuarioController(UserManagementView view) {
         this.usuarioService = new UsuarioService();
         this.userManagementView = view;
@@ -32,63 +27,69 @@ public class UsuarioController {
     }
 
     /**
-     * Refresca la tabla de usuarios en la vista
+     * Refresca la tabla de usuarios
      */
     public void refrescarTablaUsuarios() {
         try {
-            List<main.java.ec.edu.sistemalicencias.model.config.model.entities.Usuario> lista = usuarioService.listarUsuarios();
-            String[] columnas = {"Usuario", "Contrasenia", "Rol"};
+            List<Usuario> lista = usuarioService.listarUsuarios();
+            String[] columnas = {"Usuario", "Contraseña", "Rol"};
             Object[][] datos = new Object[lista.size()][3];
 
             for (int i = 0; i < lista.size(); i++) {
-                main.java.ec.edu.sistemalicencias.model.config.model.entities.Usuario u = lista.get(i);
+                Usuario u = lista.get(i);
                 datos[i][0] = u.getUsuario();
                 datos[i][1] = u.getContrasenia();
                 datos[i][2] = u.getRol();
             }
 
-            userManagementView.mostrarUsuarios(new DefaultTableModel(datos, columnas));
+            userManagementView.mostrarUsuarios(
+                    new DefaultTableModel(datos, columnas)
+            );
 
-        } catch (main.java.ec.edu.sistemalicencias.model.config.model.exceptions.UsuarioException e) {
+        } catch (UsuarioException e) {
             mostrarError(e.getMessage());
         }
     }
 
     /**
-     * Crea un nuevo usuario mediante un diálogo
+     * Crea un usuario
      */
     public void crearUsuario() {
         String usuario = JOptionPane.showInputDialog("Ingrese el nombre de usuario:");
-        String contrasenia = JOptionPane.showInputDialog("Ingrese la contrasenia:");
+        String contrasenia = JOptionPane.showInputDialog("Ingrese la contraseña:");
         String rol = JOptionPane.showInputDialog("Ingrese el rol (Administrador / Analista):");
 
         if (usuario != null && contrasenia != null && rol != null) {
             try {
-                usuarioService.crearUsuario(new main.java.ec.edu.sistemalicencias.model.config.model.entities.Usuario(usuario, contrasenia, rol));
+                usuarioService.crearUsuario(
+                        new Usuario(usuario, contrasenia, rol)
+                );
                 mostrarExito("Usuario creado correctamente");
                 refrescarTablaUsuarios();
-            } catch (main.java.ec.edu.sistemalicencias.model.config.model.exceptions.UsuarioException e) {
+            } catch (UsuarioException e) {
                 mostrarError(e.getMessage());
             }
         }
     }
 
     /**
-     * Actualiza un usuario seleccionado en la tabla
+     * Actualiza un usuario
      */
     public void actualizarUsuario() {
         int fila = userManagementView.getTablaUsuarios().getSelectedRow();
         if (fila >= 0) {
             String usuario = (String) userManagementView.getTablaUsuarios().getValueAt(fila, 0);
-            String contrasenia = JOptionPane.showInputDialog("Nueva contrasenia:");
-            String rol = JOptionPane.showInputDialog("Nuevo rol (Administrador / Analista):");
+            String contrasenia = JOptionPane.showInputDialog("Nueva contraseña:");
+            String rol = JOptionPane.showInputDialog("Nuevo rol:");
 
             if (contrasenia != null && rol != null) {
                 try {
-                    usuarioService.actualizarUsuario(new main.java.ec.edu.sistemalicencias.model.config.model.entities.Usuario(usuario, contrasenia, rol));
+                    usuarioService.actualizarUsuario(
+                            new Usuario(usuario, contrasenia, rol)
+                    );
                     mostrarExito("Usuario actualizado correctamente");
                     refrescarTablaUsuarios();
-                } catch (main.java.ec.edu.sistemalicencias.model.config.model.exceptions.UsuarioException e) {
+                } catch (UsuarioException e) {
                     mostrarError(e.getMessage());
                 }
             }
@@ -98,7 +99,7 @@ public class UsuarioController {
     }
 
     /**
-     * Elimina un usuario seleccionado en la tabla
+     * Elimina un usuario
      */
     public void eliminarUsuario() {
         int fila = userManagementView.getTablaUsuarios().getSelectedRow();
@@ -109,7 +110,7 @@ public class UsuarioController {
                     usuarioService.eliminarUsuario(usuario);
                     mostrarExito("Usuario eliminado correctamente");
                     refrescarTablaUsuarios();
-                } catch (main.java.ec.edu.sistemalicencias.model.config.model.exceptions.UsuarioException e) {
+                } catch (UsuarioException e) {
                     mostrarError(e.getMessage());
                 }
             }
@@ -118,9 +119,6 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * Inicializa los botones de la vista para que llamen a los métodos CRUD
-     */
     private void inicializarBotonesUsuarios() {
         userManagementView.getBtnRefrescar().addActionListener(e -> refrescarTablaUsuarios());
         userManagementView.getBtnCrear().addActionListener(e -> crearUsuario());
@@ -128,39 +126,21 @@ public class UsuarioController {
         userManagementView.getBtnEliminar().addActionListener(e -> eliminarUsuario());
     }
 
-    /**
-     * Muestra un mensaje de error en la interfaz
-     * @param mensaje Mensaje a mostrar
-     */
-    public void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(null,
-                mensaje,
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(null, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    /**
-     * Muestra un mensaje de éxito en la interfaz
-     * @param mensaje Mensaje a mostrar
-     */
-    public void mostrarExito(String mensaje) {
-        JOptionPane.showMessageDialog(null,
-                mensaje,
-                "Éxito",
-                JOptionPane.INFORMATION_MESSAGE);
+    private void mostrarExito(String mensaje) {
+        JOptionPane.showMessageDialog(null, mensaje, "Éxito", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /**
-     * Muestra un mensaje de confirmación
-     * @param mensaje Mensaje a mostrar
-     * @return true si el usuario confirma
-     */
-    public boolean confirmar(String mensaje) {
-        int respuesta = JOptionPane.showConfirmDialog(null,
+    private boolean confirmar(String mensaje) {
+        return JOptionPane.showConfirmDialog(
+                null,
                 mensaje,
                 "Confirmación",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
-        return respuesta == JOptionPane.YES_OPTION;
+                JOptionPane.YES_NO_OPTION
+        ) == JOptionPane.YES_OPTION;
     }
 }
+
