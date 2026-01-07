@@ -10,8 +10,9 @@ public class UsuarioService {
 
     private final UsuarioDAO usuarioDAO;
 
-    public UsuarioService(UsuarioDAO usuarioDAO) {
-        this.usuarioDAO = usuarioDAO;
+    // Constructor recibe la conexión
+    public UsuarioService() {
+        this.usuarioDAO = new UsuarioDAO(conexion);
     }
 
     // Crear usuario
@@ -38,6 +39,12 @@ public class UsuarioService {
     public Usuario login(String usuario, String contrasenia) throws UsuarioException {
         return usuarioDAO.login(usuario, contrasenia);
     }
+
+    // Verificar si existe usuario
+    public boolean existeUsuario(String usuario) throws UsuarioException {
+        return usuarioDAO.existeUsuario(usuario);
+    }
 }
+
 
 

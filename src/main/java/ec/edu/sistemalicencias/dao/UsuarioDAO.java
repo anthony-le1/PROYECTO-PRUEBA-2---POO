@@ -7,9 +7,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO para la gestión de usuarios en base de datos
- */
 public class UsuarioDAO {
 
     private final Connection conexion;
@@ -40,12 +37,11 @@ public class UsuarioDAO {
              ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                Usuario u = new Usuario(
+                lista.add(new Usuario(
                         rs.getString("usuario"),
                         rs.getString("contrasenia"),
                         rs.getString("rol")
-                );
-                lista.add(u);
+                ));
             }
 
         } catch (SQLException e) {
@@ -58,7 +54,6 @@ public class UsuarioDAO {
     // Actualizar usuario
     public void actualizarUsuario(Usuario usuario) throws UsuarioException {
         String sql = "UPDATE usuarios SET contrasenia = ?, rol = ? WHERE usuario = ?";
-
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, usuario.getContrasenia());
             ps.setString(2, usuario.getRol());
@@ -72,7 +67,6 @@ public class UsuarioDAO {
     // Eliminar usuario
     public void eliminarUsuario(String usuario) throws UsuarioException {
         String sql = "DELETE FROM usuarios WHERE usuario = ?";
-
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, usuario);
             ps.executeUpdate();
@@ -84,7 +78,6 @@ public class UsuarioDAO {
     // Login
     public Usuario login(String usuario, String contrasenia) throws UsuarioException {
         String sql = "SELECT usuario, contrasenia, rol FROM usuarios WHERE usuario = ? AND contrasenia = ?";
-
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, usuario);
             ps.setString(2, contrasenia);
@@ -99,12 +92,25 @@ public class UsuarioDAO {
             } else {
                 throw new UsuarioException("Usuario o contraseña incorrectos");
             }
-
         } catch (SQLException e) {
             throw new UsuarioException("Error al iniciar sesión: " + e.getMessage());
         }
     }
+
+    // ✅ Método para verificar existencia de usuario
+    public boolean existeUsuario(String usuario) throws UsuarioException {
+        String sql = "SELECT 1 FROM usuarios WHERE usuario = ?";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, usuario);
+            ResultSet rs = ps.executeQuery();
+            return rs.next(); // si hay resultado, el usuario existe
+        } catch (SQLException e) {
+            throw new UsuarioException("Error al verificar existencia de usuario: " + e.getMessage());
+        }
+    }
 }
+
+
 
 
 
