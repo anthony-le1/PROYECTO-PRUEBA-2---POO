@@ -28,7 +28,7 @@ public class DatabaseConfig {
      * Constructor privado para implementar Singleton
      * Carga los parámetros de conexión desde configuración
      */
-    private DatabaseConfig() {
+    /*private DatabaseConfig() {
         // Configuración por defecto - puede ser sobreescrita mediante properties
         this.driver = "com.mysql.cj.jdbc.Driver";
         this.url = "jdbc:mysql://localhost:3306/sistema_licencias?useSSL=false&serverTimezone=UTC";
@@ -41,7 +41,23 @@ public class DatabaseConfig {
         } catch (ClassNotFoundException e) {
             System.err.println("Error al cargar el driver MySQL: " + e.getMessage());
         }
+    }*/
+    private DatabaseConfig() {
+
+        // Configuración PostgreSQL
+        this.driver = "org.postgresql.Driver";
+        this.url = "jdbc:postgresql://localhost:5432/licencias_db";
+        this.usuario = "postgres";
+        this.password = "root";
+
+        try {
+            // Cargar el driver JDBC
+            Class.forName(driver);
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error al cargar el driver PostgreSQL: " + e.getMessage());
+        }
     }
+
 
     /**
      * Obtiene la instancia única de DatabaseConfig (Singleton)

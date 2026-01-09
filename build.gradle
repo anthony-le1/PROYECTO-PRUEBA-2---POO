@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     // MySQL Connector
-    implementation 'mysql:mysql-connector-java:8.0.33'
+    //implementation 'mysql:mysql-connector-java:8.0.33'
 
     // iText PDF para generación de documentos
     implementation 'com.itextpdf:itextpdf:5.5.13.3'
@@ -25,6 +25,10 @@ dependencies {
 
     // IntelliJ Forms Runtime (para GUI Designer)
     implementation 'com.intellij:forms_rt:7.0.3'
+
+    // PostgreSQL Connector (Migración)
+    implementation 'org.postgresql:postgresql:42.7.3'
+
 }
 
 application {

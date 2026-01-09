@@ -55,7 +55,7 @@ public class CrearUsuarioView {
             validarCampos(usuario, contrasenia, rol);
 
             // Verificar si el usuario ya existe en la base de datos
-            usuarioDAO.verificarUsuarioExistente(usuario);
+            usuarioDAO.existeUsuario(usuario);
 
             // Crear usuario
             Usuario u = new Usuario(usuario, contrasenia, rol);

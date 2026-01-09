@@ -31,7 +31,7 @@ public class UsuarioDAO {
     // Listar usuarios
     public List<Usuario> listarUsuarios() throws UsuarioException {
         List<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT usuario, contrasenia, rol FROM usuarios";
+        String sql = "SELECT usuario, contrasenia, rol FROM usuario";
 
         try (Statement st = conexion.createStatement();
              ResultSet rs = st.executeQuery(sql)) {

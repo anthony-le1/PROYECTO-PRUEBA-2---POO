@@ -1,18 +1,30 @@
 package ec.edu.sistemalicencias.service;
 
+import ec.edu.sistemalicencias.config.DatabaseConfig;
 import ec.edu.sistemalicencias.dao.UsuarioDAO;
 import ec.edu.sistemalicencias.model.entities.Usuario;
 import ec.edu.sistemalicencias.model.exceptions.UsuarioException;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class UsuarioService {
 
     private final UsuarioDAO usuarioDAO;
 
-    // Constructor recibe la conexión
     public UsuarioService() {
-        this.usuarioDAO = new UsuarioDAO(conexion);
+        try {
+            Connection conexion = DatabaseConfig
+                    .getInstance()
+                    .obtenerConexion();
+
+            this.usuarioDAO = new UsuarioDAO(conexion);
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Error al inicializar UsuarioService", e
+            );
+        }
     }
 
     // Crear usuario
@@ -45,6 +57,7 @@ public class UsuarioService {
         return usuarioDAO.existeUsuario(usuario);
     }
 }
+
 
 
 

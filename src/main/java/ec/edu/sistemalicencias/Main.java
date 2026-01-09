@@ -55,7 +55,7 @@ public class Main {
                         "Versión 1.0\n\n" +
                         "Desarrollado con:\n" +
                         "- Java 21\n" +
-                        "- MySQL Database\n" +
+                        "- PostgreSQL Database\n" +
                         "- Arquitectura MVC\n" +
                         "- iText PDF\n\n" +
                         "Iniciando sistema...",
@@ -64,19 +64,18 @@ public class Main {
         );
     }
 
+
     /**
      * Muestra un mensaje de error si no se puede conectar a la base de datos
      */
     private static void mostrarErrorConexion() {
         String mensaje = "ERROR DE CONEXIÓN A BASE DE DATOS\n\n" +
-                "No se pudo establecer conexión con MySQL.\n\n" +
+                "No se pudo establecer conexión con PostgreSQL.\n\n" +
                 "Verifique que:\n" +
-                "1. MySQL Server esté ejecutándose\n" +
-                "2. La base de datos 'sistema_licencias' exista\n" +
-                "3. Las credenciales sean correctas (usuario: root, password: root)\n" +
-                "4. El servidor esté en localhost:3306\n\n" +
-                "Para crear la base de datos, ejecute el script:\n" +
-                "src/main/resources/schema.sql\n\n" +
+                "1. PostgreSQL Server esté ejecutándose\n" +
+                "2. La base de datos 'licencias_db' exista\n" +
+                "3. Las credenciales sean correctas (usuario: postgres)\n" +
+                "4. El servidor esté en localhost:5432\n\n" +
                 "La aplicación se cerrará.";
 
         JOptionPane.showMessageDialog(
@@ -88,5 +87,6 @@ public class Main {
 
         System.exit(1);
     }
+
 }
 
