@@ -9,6 +9,8 @@ import ec.edu.sistemalicencias.model.exceptions.UsuarioException;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 
 public class CrearUsuarioView {
@@ -18,11 +20,13 @@ public class CrearUsuarioView {
     private JTextField textUsuario;
     private JTextField txtRol;
     private JPasswordField passwordContrasenia;
-    private JButton btnCrear;
+    private JButton btnIniciarSesión;
     private JButton btnCancelar;
     private JLabel lblUsuario;
     private JLabel lblRol;
     private JLabel lblContrasenia;
+    private JComboBox cbxRol;
+    private JButton btnSalir;
 
     private UsuarioDAO usuarioDAO;
 
@@ -32,16 +36,22 @@ public class CrearUsuarioView {
         // Estilos
         panel1.setBackground(new Color(245, 245, 245));
         lblTitulo.setFont(new Font("Sans Serif", Font.BOLD, 18));
-        btnCrear.setBackground(new Color(76, 175, 80));
-        btnCrear.setForeground(Color.WHITE);
+        btnIniciarSesión.setBackground(new Color(76, 175, 80));
+        btnIniciarSesión.setForeground(Color.WHITE);
         btnCancelar.setBackground(new Color(189, 189, 189));
         btnCancelar.setForeground(Color.BLACK);
 
         // Botón Crear
-        btnCrear.addActionListener(e -> crearUsuario());
+        btnIniciarSesión.addActionListener(e -> crearUsuario());
 
         // Botón Cancelar
         btnCancelar.addActionListener(e -> SwingUtilities.getWindowAncestor(panel1).dispose());
+        btnSalir.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
     }
 
     //MÉTODO CREAR
@@ -143,9 +153,9 @@ public class CrearUsuarioView {
         panel2.add(lblRol, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         panel1.add(spacer1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        btnCrear = new JButton();
-        btnCrear.setText("Crear");
-        panel1.add(btnCrear, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnIniciarSesión = new JButton();
+        btnIniciarSesión.setText("Crear");
+        panel1.add(btnIniciarSesión, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         panel1.add(spacer2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     }
