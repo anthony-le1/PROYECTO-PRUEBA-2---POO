@@ -61,7 +61,7 @@ public class ConductorDAO implements Persistible<Conductor> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setString(1, conductor.getCedula());
@@ -111,7 +111,7 @@ public class ConductorDAO implements Persistible<Conductor> {
         PreparedStatement stmt = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
 
             stmt.setString(1, conductor.getCedula());
@@ -154,7 +154,7 @@ public class ConductorDAO implements Persistible<Conductor> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, id);
 
@@ -187,7 +187,7 @@ public class ConductorDAO implements Persistible<Conductor> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, cedula);
 
@@ -220,7 +220,7 @@ public class ConductorDAO implements Persistible<Conductor> {
         List<Conductor> conductores = new ArrayList<>();
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
 
@@ -253,7 +253,7 @@ public class ConductorDAO implements Persistible<Conductor> {
         List<Conductor> conductores = new ArrayList<>();
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             String patron = "%" + nombre + "%";
             stmt.setString(1, patron);
@@ -288,7 +288,7 @@ public class ConductorDAO implements Persistible<Conductor> {
         PreparedStatement stmt = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, id);
 

@@ -7,116 +7,87 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Clase de configuración para la conexión a la base de datos MySQL.
- * Implementa el patrón Singleton para gestionar una única instancia de configuración.
+ * Database configuration class.
+ * Implements Singleton pattern to manage a single DB connection config.
  *
  * @author Sistema Licencias Ecuador
  * @version 1.0
  */
 public class DatabaseConfig {
 
-    // Instancia única (Singleton)
-    private static DatabaseConfig instancia;
+    // Singleton instance
+    private static DatabaseConfig instance;
 
-    // Parámetros de conexión (Encapsulamiento)
+    // Database connection parameters
     private final String url;
-    private final String usuario;
+    private final String user;
     private final String password;
     private final String driver;
 
     /**
-     * Constructor privado para implementar Singleton
-     * Carga los parámetros de conexión desde configuración
+     * Private constructor (Singleton)
+     * PostgreSQL configuration
      */
-    /*private DatabaseConfig() {
-        // Configuración por defecto - puede ser sobreescrita mediante properties
-        this.driver = "com.mysql.cj.jdbc.Driver";
-        this.url = "jdbc:mysql://localhost:3306/sistema_licencias?useSSL=false&serverTimezone=UTC";
-        this.usuario = "root";
-        this.password = "Anthony123";
-
-        try {
-            // Cargar el driver JDBC
-            Class.forName(driver);
-        } catch (ClassNotFoundException e) {
-            System.err.println("Error al cargar el driver MySQL: " + e.getMessage());
-        }
-    }*/
     private DatabaseConfig() {
 
-        // Configuración PostgreSQL
         this.driver = "org.postgresql.Driver";
         this.url = "jdbc:postgresql://localhost:5432/licencias_db";
-        this.usuario = "postgres";
+        this.user = "postgres";
         this.password = "root";
 
         try {
-            // Cargar el driver JDBC
             Class.forName(driver);
         } catch (ClassNotFoundException e) {
-            System.err.println("Error al cargar el driver PostgreSQL: " + e.getMessage());
+            System.err.println("Error loading PostgreSQL driver: " + e.getMessage());
         }
     }
 
-
     /**
-     * Obtiene la instancia única de DatabaseConfig (Singleton)
-     *
-     * @return Instancia de DatabaseConfig
+     * Returns the single instance of DatabaseConfig
      */
     public static synchronized DatabaseConfig getInstance() {
-        if (instancia == null) {
-            instancia = new DatabaseConfig();
+        if (instance == null) {
+            instance = new DatabaseConfig();
         }
-        return instancia;
+        return instance;
     }
 
     /**
-     * Crea y retorna una conexión a la base de datos
-     *
-     * @return Objeto Connection
-     * @throws BaseDatosException Si no se puede establecer la conexión
+     * Creates and returns a database connection
      */
-    public Connection obtenerConexion() throws BaseDatosException {
+    public Connection getConnection() throws BaseDatosException {
         try {
-            Connection conexion = DriverManager.getConnection(url, usuario, password);
-            conexion.setAutoCommit(true);
-            return conexion;
+            Connection connection = DriverManager.getConnection(url, user, password);
+            connection.setAutoCommit(true);
+            return connection;
         } catch (SQLException e) {
-            throw new BaseDatosException(
-                    "Error al conectar con la base de datos: " + e.getMessage(),
-                    e
-            );
+            throw new BaseDatosException("Error connecting to database", e);
         }
     }
 
     /**
-     * Cierra una conexión de forma segura
-     *
-     * @param conexion Conexión a cerrar
+     * Safely closes a database connection
      */
-    public void cerrarConexion(Connection conexion) {
-        if (conexion != null) {
+    public void closeConnection(Connection connection) {
+        if (connection != null) {
             try {
-                if (!conexion.isClosed()) {
-                    conexion.close();
+                if (!connection.isClosed()) {
+                    connection.close();
                 }
             } catch (SQLException e) {
-                System.err.println("Error al cerrar la conexión: " + e.getMessage());
+                System.err.println("Error closing connection: " + e.getMessage());
             }
         }
     }
 
     /**
-     * Verifica si la conexión a la base de datos es válida
-     *
-     * @return true si la conexión es exitosa, false en caso contrario
+     * Verifies database connectivity
      */
-    public boolean verificarConexion() {
-        try (Connection conn = obtenerConexion()) {
+    public boolean checkConnection() {
+        try (Connection conn = getConnection()) {
             return conn != null && !conn.isClosed();
         } catch (Exception e) {
-            System.err.println("Error al verificar conexión: " + e.getMessage());
+            System.err.println("Connection check failed: " + e.getMessage());
             return false;
         }
     }
@@ -127,11 +98,12 @@ public class DatabaseConfig {
         return url;
     }
 
-    public String getUsuario() {
-        return usuario;
+    public String getUser() {
+        return user;
     }
 
     public String getDriver() {
         return driver;
     }
 }
+

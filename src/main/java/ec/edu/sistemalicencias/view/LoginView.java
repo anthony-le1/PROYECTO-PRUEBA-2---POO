@@ -3,112 +3,88 @@ package ec.edu.sistemalicencias.view;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import ec.edu.sistemalicencias.dao.UsuarioDAO;
+import ec.edu.sistemalicencias.controller.UsuarioController;
 import ec.edu.sistemalicencias.model.entities.Usuario;
 import ec.edu.sistemalicencias.model.exceptions.UsuarioException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 
-public class CrearUsuarioView {
+public class LoginView {
 
     private JPanel panel1;
     private JLabel lblTitulo;
-    private JTextField textUsuario;
-    private JTextField txtRol;
-    private JPasswordField passwordContrasenia;
-    private JButton btnIniciarSesión;
-    private JButton btnCancelar;
     private JLabel lblUsuario;
     private JLabel lblRol;
+    private JTextField textUsuario;
     private JLabel lblContrasenia;
-    private JComboBox cbxRol;
+    private JPasswordField passwordContrasenia;
+    private JComboBox<String> cbxRol;
+    private JButton btnIniciarSesion;
     private JButton btnSalir;
 
-    private UsuarioDAO usuarioDAO;
+    private final UsuarioController usuarioController;
 
-    public CrearUsuarioView(Connection conexion) {
-        usuarioDAO = new UsuarioDAO(conexion);
+    public LoginView(Connection conexion) {
+        // Inicializar controller
+        this.usuarioController = new UsuarioController(null);
 
-        // Estilos
-        panel1.setBackground(new Color(245, 245, 245));
-        lblTitulo.setFont(new Font("Sans Serif", Font.BOLD, 18));
-        btnIniciarSesión.setBackground(new Color(76, 175, 80));
-        btnIniciarSesión.setForeground(Color.WHITE);
-        btnCancelar.setBackground(new Color(189, 189, 189));
-        btnCancelar.setForeground(Color.BLACK);
+        // Configuraciones de estilo
+        panel1.setBackground(new Color(245, 246, 250));
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-        // Botón Crear
-        btnIniciarSesión.addActionListener(e -> crearUsuario());
-
-        // Botón Cancelar
-        btnCancelar.addActionListener(e -> SwingUtilities.getWindowAncestor(panel1).dispose());
-        btnSalir.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
+        // ====== ASIGNAR ACTION LISTENERS ======
+        btnIniciarSesion.addActionListener(e -> iniciarSesion());
+        btnSalir.addActionListener(e -> System.exit(0));
     }
 
-    //MÉTODO CREAR
-    private void crearUsuario() {
+    private void iniciarSesion() {
         try {
             String usuario = textUsuario.getText().trim();
             String contrasenia = new String(passwordContrasenia.getPassword()).trim();
-            String rol = txtRol.getText().trim();
+            String rol = cbxRol.getSelectedItem().toString();
 
-            // Validaciones básicas
-            validarCampos(usuario, contrasenia, rol);
+            if (usuario.isEmpty() || contrasenia.isEmpty()) {
+                throw new UsuarioException("Complete todos los campos");
+            }
 
-            // Verificar si el usuario ya existe en la base de datos
-            usuarioDAO.existeUsuario(usuario);
+            // Login devuelve el usuario
+            Usuario usuarioLogueado = usuarioController.login(usuario, contrasenia, rol);
 
-            // Crear usuario
-            Usuario u = new Usuario(usuario, contrasenia, rol);
-            usuarioDAO.crearUsuario(u);
+            // Mostrar mensaje de éxito
+            JOptionPane.showMessageDialog(panel1,
+                    "Login exitoso\nRol: " + rol,
+                    "Correcto",
+                    JOptionPane.INFORMATION_MESSAGE);
 
-            JOptionPane.showMessageDialog(panel1, "Usuario creado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            limpiarCampos();
+            // Abrir MainView con el usuario logueado
+            MainView mainView = new MainView(usuarioLogueado);
+            mainView.setVisible(true);
 
-        } catch (UsuarioException ex) {
-            JOptionPane.showMessageDialog(panel1, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            // Cerrar login
+            cerrarVentana();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panel1,
+                    ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    //MÉTODOS AUXILIARES
-    private void validarCampos(String usuario, String contrasenia, String rol) throws UsuarioException {
-        if (usuario.isBlank()) throw new UsuarioException("El campo Usuario no puede estar vacío");
-        if (usuario.length() < 4) throw new UsuarioException("Usuario debe tener al menos 4 caracteres");
-        if (contrasenia.isBlank()) throw new UsuarioException("El campo Contraseña no puede estar vacío");
-        if (contrasenia.length() < 6 || !tieneMayuscula(contrasenia) || !tieneMinuscula(contrasenia))
-            throw new UsuarioException("Contraseña debe tener al menos 6 caracteres, incluyendo mayúscula y minúscula");
-        if (!rol.equalsIgnoreCase("Administrador") && !rol.equalsIgnoreCase("Analista"))
-            throw new UsuarioException("Rol inválido, debe ser Administrador o Analista");
-    }
-
-    private boolean tieneMayuscula(String str) {
-        for (char c : str.toCharArray()) if (Character.isUpperCase(c)) return true;
-        return false;
-    }
-
-    private boolean tieneMinuscula(String str) {
-        for (char c : str.toCharArray()) if (Character.isLowerCase(c)) return true;
-        return false;
-    }
-
-    private void limpiarCampos() {
-        textUsuario.setText("");
-        passwordContrasenia.setText("");
-        txtRol.setText("");
+    private void cerrarVentana() {
+        Window w = SwingUtilities.getWindowAncestor(panel1);
+        if (w != null) {
+            w.dispose();
+        }
     }
 
     public JPanel getPanel1() {
         return panel1;
     }
+
+    // ===================== GUI DESIGNER =====================
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
@@ -126,12 +102,12 @@ public class CrearUsuarioView {
      */
     private void $$$setupUI$$$() {
         panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(7, 1, new Insets(0, 0, 0, 0), -1, -1));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         lblTitulo = new JLabel();
-        lblTitulo.setText("FORMULARIO PARA CREAR EL USUARIO");
+        lblTitulo.setText("SISTEMA DE LICENCIAS ANT ");
         panel2.add(lblTitulo, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         lblUsuario = new JLabel();
         lblUsuario.setText("Usuario");
@@ -139,9 +115,6 @@ public class CrearUsuarioView {
         textUsuario = new JTextField();
         textUsuario.setText("");
         panel2.add(textUsuario, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        txtRol = new JTextField();
-        txtRol.setText("");
-        panel2.add(txtRol, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         lblContrasenia = new JLabel();
         lblContrasenia.setText("Contraseña: ");
         panel2.add(lblContrasenia, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -151,13 +124,26 @@ public class CrearUsuarioView {
         lblRol = new JLabel();
         lblRol.setText("Rol");
         panel2.add(lblRol, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cbxRol = new JComboBox();
+        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
+        defaultComboBoxModel1.addElement("Administrador");
+        defaultComboBoxModel1.addElement("Analista");
+        cbxRol.setModel(defaultComboBoxModel1);
+        panel2.add(cbxRol, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         panel1.add(spacer1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        btnIniciarSesión = new JButton();
-        btnIniciarSesión.setText("Crear");
-        panel1.add(btnIniciarSesión, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         panel1.add(spacer2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer3 = new Spacer();
+        panel1.add(spacer3, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        btnSalir = new JButton();
+        btnSalir.setText("Salir ");
+        panel1.add(btnSalir, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer4 = new Spacer();
+        panel1.add(spacer4, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        btnIniciarSesion = new JButton();
+        btnIniciarSesion.setText("Iniciar Sesión");
+        panel1.add(btnIniciarSesion, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -166,5 +152,10 @@ public class CrearUsuarioView {
     public JComponent $$$getRootComponent$$$() {
         return panel1;
     }
+
 }
+
+
+
+
 

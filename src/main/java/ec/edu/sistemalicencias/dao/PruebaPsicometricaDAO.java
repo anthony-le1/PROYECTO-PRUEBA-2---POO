@@ -60,7 +60,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setLong(1, prueba.getConductorId());
@@ -107,7 +107,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         PreparedStatement stmt = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
 
             stmt.setDouble(1, prueba.getNotaReaccion());
@@ -146,7 +146,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, id);
 
@@ -181,7 +181,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         List<PruebaPsicometrica> pruebas = new ArrayList<>();
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, conductorId);
 
@@ -215,7 +215,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, conductorId);
 
@@ -248,7 +248,7 @@ public class PruebaPsicometricaDAO implements Persistible<PruebaPsicometrica> {
         PreparedStatement stmt = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, id);
 

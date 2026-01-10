@@ -6,6 +6,7 @@ import ec.edu.sistemalicencias.controller.LicenciaController;
 import ec.edu.sistemalicencias.model.entities.Conductor;
 import ec.edu.sistemalicencias.model.entities.Licencia;
 import ec.edu.sistemalicencias.model.entities.PruebaPsicometrica;
+import ec.edu.sistemalicencias.model.entities.Usuario;
 import ec.edu.sistemalicencias.model.exceptions.LicenciaException;
 import ec.edu.sistemalicencias.util.PDFGenerator;
 
@@ -44,7 +45,7 @@ public class MainView extends JFrame {
     /**
      * Constructor de la vista principal
      */
-    public MainView() {
+    public MainView(Usuario usuario) {
         this.controller = new LicenciaController();
 
         // Inicializar componentes programáticamente

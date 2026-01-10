@@ -1,5 +1,6 @@
 package ec.edu.sistemalicencias.dao;
 
+import ec.edu.sistemalicencias.config.DatabaseConfig;
 import ec.edu.sistemalicencias.model.entities.Usuario;
 import ec.edu.sistemalicencias.model.exceptions.UsuarioException;
 
@@ -15,100 +16,177 @@ public class UsuarioDAO {
         this.conexion = conexion;
     }
 
-    // Crear usuario
+    // ===================== CREAR USUARIO =====================
     public void crearUsuario(Usuario usuario) throws UsuarioException {
-        String sql = "INSERT INTO usuarios(usuario, contrasenia, rol) VALUES (?, ?, ?)";
+
+        String sql = """
+            INSERT INTO usuarios(nombre, apellido, correo, password, estado, rol)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
+
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, usuario.getUsuario());
-            ps.setString(2, usuario.getContrasenia());
-            ps.setString(3, usuario.getRol());
+
+            ps.setString(1, usuario.getNombre());
+            ps.setString(2, usuario.getApellido());
+            ps.setString(3, usuario.getCorreo());
+            ps.setString(4, usuario.getPassword());
+            ps.setBoolean(5, usuario.isEstado());
+            ps.setString(6, usuario.getRol());
+
             ps.executeUpdate();
+
         } catch (SQLException e) {
-            throw new UsuarioException("Error al crear usuario: " + e.getMessage());
+            throw new UsuarioException("Error al crear usuario", e);
         }
     }
 
-    // Listar usuarios
+    // ===================== LISTAR USUARIOS =====================
     public List<Usuario> listarUsuarios() throws UsuarioException {
+
         List<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT usuario, contrasenia, rol FROM usuario";
+        String sql = "SELECT * FROM usuarios";
 
         try (Statement st = conexion.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                lista.add(new Usuario(
-                        rs.getString("usuario"),
-                        rs.getString("contrasenia"),
+                Usuario u = new Usuario(
+                        rs.getInt("id"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("correo"),
+                        rs.getString("password"),
+                        rs.getBoolean("estado"),
                         rs.getString("rol")
-                ));
+                );
+                lista.add(u);
             }
 
         } catch (SQLException e) {
-            throw new UsuarioException("Error al listar usuarios: " + e.getMessage());
+            throw new UsuarioException("Error al listar usuarios", e);
         }
 
         return lista;
     }
 
-    // Actualizar usuario
-    public void actualizarUsuario(Usuario usuario) throws UsuarioException {
-        String sql = "UPDATE usuarios SET contrasenia = ?, rol = ? WHERE usuario = ?";
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, usuario.getContrasenia());
-            ps.setString(2, usuario.getRol());
-            ps.setString(3, usuario.getUsuario());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new UsuarioException("Error al actualizar usuario: " + e.getMessage());
-        }
-    }
+    // ===================== BUSCAR POR CORREO =====================
+    public Usuario buscarPorCorreo(String correo) throws UsuarioException {
 
-    // Eliminar usuario
-    public void eliminarUsuario(String usuario) throws UsuarioException {
-        String sql = "DELETE FROM usuarios WHERE usuario = ?";
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, usuario);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new UsuarioException("Error al eliminar usuario: " + e.getMessage());
-        }
-    }
+        String sql = "SELECT * FROM usuarios WHERE correo = ?";
 
-    // Login
-    public Usuario login(String usuario, String contrasenia) throws UsuarioException {
-        String sql = "SELECT usuario, contrasenia, rol FROM usuarios WHERE usuario = ? AND contrasenia = ?";
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, usuario);
-            ps.setString(2, contrasenia);
+            ps.setString(1, correo);
 
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new Usuario(
-                        rs.getString("usuario"),
-                        rs.getString("contrasenia"),
-                        rs.getString("rol")
-                );
-            } else {
-                throw new UsuarioException("Usuario o contraseña incorrectos");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Usuario(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getString("apellido"),
+                            rs.getString("correo"),
+                            rs.getString("password"),
+                            rs.getBoolean("estado"),
+                            rs.getString("rol")
+                    );
+                }
             }
+
         } catch (SQLException e) {
-            throw new UsuarioException("Error al iniciar sesión: " + e.getMessage());
+            throw new UsuarioException("Error al buscar usuario", e);
+        }
+
+        return null;
+    }
+
+
+
+    // ===================== ACTUALIZAR USUARIO =====================
+    public void actualizarUsuario(Usuario usuario) throws UsuarioException {
+
+        String sql = """
+            UPDATE usuarios
+            SET nombre = ?, apellido = ?, password = ?, estado = ?, rol = ?
+            WHERE correo = ?
+            """;
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, usuario.getNombre());
+            ps.setString(2, usuario.getApellido());
+            ps.setString(3, usuario.getPassword());
+            ps.setBoolean(4, usuario.isEstado());
+            ps.setString(5, usuario.getRol());
+            ps.setString(6, usuario.getCorreo());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new UsuarioException("Error al actualizar usuario", e);
+        }
+    }
+    public void eliminarUsuarioPorCorreo(String correo) throws UsuarioException {
+
+        String sql = "DELETE FROM usuarios WHERE correo = ?";
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new UsuarioException("Error al eliminar usuario", e);
         }
     }
 
-    // ✅ Método para verificar existencia de usuario
-    public boolean existeUsuario(String usuario) throws UsuarioException {
-        String sql = "SELECT 1 FROM usuarios WHERE usuario = ?";
+
+
+    // ===================== LOGIN =====================
+    public Usuario login(String correo, String password) throws UsuarioException {
+
+        String sql = """
+            SELECT * FROM usuarios
+            WHERE correo = ? AND password = ? AND estado = true
+            """;
+
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, usuario);
-            ResultSet rs = ps.executeQuery();
-            return rs.next(); // si hay resultado, el usuario existe
+
+            ps.setString(1, correo);
+            ps.setString(2, password);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Usuario(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getString("apellido"),
+                            rs.getString("correo"),
+                            rs.getString("password"),
+                            rs.getBoolean("estado"),
+                            rs.getString("rol")
+                    );
+                }
+            }
+
+            throw new UsuarioException("Correo o contraseña incorrectos"); //Buena practica en ciberseguridad
+
         } catch (SQLException e) {
-            throw new UsuarioException("Error al verificar existencia de usuario: " + e.getMessage());
+            throw new UsuarioException("Error al iniciar sesión", e);
+        }
+    }
+
+    // ===================== EXISTE USUARIO =====================
+    public boolean existeUsuario(String correo) throws UsuarioException {
+
+        String sql = "SELECT 1 FROM usuarios WHERE correo = ?";
+
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, correo);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new UsuarioException("Error al verificar usuario", e);
         }
     }
 }
+
 
 
 

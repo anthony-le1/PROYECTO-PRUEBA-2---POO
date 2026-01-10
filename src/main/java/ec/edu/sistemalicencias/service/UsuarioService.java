@@ -7,6 +7,7 @@ import ec.edu.sistemalicencias.model.exceptions.UsuarioException;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class UsuarioService {
 
@@ -16,47 +17,85 @@ public class UsuarioService {
         try {
             Connection conexion = DatabaseConfig
                     .getInstance()
-                    .obtenerConexion();
+                    .getConnection();
 
             this.usuarioDAO = new UsuarioDAO(conexion);
 
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Error al inicializar UsuarioService", e
-            );
+            throw new RuntimeException("Error al inicializar UsuarioService", e);
         }
     }
 
-    // Crear usuario
+    // ===================== LOGIN =====================
+    public Usuario login(String correo, String password) throws UsuarioException {
+
+        validarCorreo(correo);
+        validarPassword(password);
+
+        return usuarioDAO.login(correo, password);
+    }
+
+    // ===================== CRUD =====================
     public void crearUsuario(Usuario usuario) throws UsuarioException {
+
+        validarCorreo(usuario.getCorreo());
+        validarPassword(usuario.getPassword());
+
+        if (usuarioDAO.existeUsuario(usuario.getCorreo())) {
+            throw new UsuarioException("El usuario ya existe");
+        }
+
         usuarioDAO.crearUsuario(usuario);
     }
 
-    // Listar usuarios
     public List<Usuario> listarUsuarios() throws UsuarioException {
         return usuarioDAO.listarUsuarios();
     }
 
-    // Actualizar usuario
+    public Usuario buscarPorCorreo(String correo) throws UsuarioException {
+        return usuarioDAO.buscarPorCorreo(correo);
+    }
+
     public void actualizarUsuario(Usuario usuario) throws UsuarioException {
         usuarioDAO.actualizarUsuario(usuario);
     }
 
-    // Eliminar usuario
-    public void eliminarUsuario(String usuario) throws UsuarioException {
-        usuarioDAO.eliminarUsuario(usuario);
+    public void eliminarUsuarioPorCorreo(String correo) throws UsuarioException {
+        usuarioDAO.eliminarUsuarioPorCorreo(correo);
     }
 
-    // Login
-    public Usuario login(String usuario, String contrasenia) throws UsuarioException {
-        return usuarioDAO.login(usuario, contrasenia);
+    // ===================== VALIDACIONES =====================
+    private void validarCorreo(String correo) throws UsuarioException {
+        if (correo == null || correo.isBlank()) {
+            throw new UsuarioException("Correo inválido");
+        }
+
+        String regexCorreo = "^[\\w.-]+@[\\w.-]+\\.(com|ec|es|net|org)$";
+        if (!Pattern.matches(regexCorreo, correo)) {
+            throw new UsuarioException("Formato de correo inválido");
+        }
     }
 
-    // Verificar si existe usuario
-    public boolean existeUsuario(String usuario) throws UsuarioException {
-        return usuarioDAO.existeUsuario(usuario);
+    private void validarPassword(String password) throws UsuarioException {
+
+        if (password.length() < 8)
+            throw new UsuarioException("La contraseña debe tener mínimo 8 caracteres");
+
+        if (!password.matches(".*[A-Z].*"))
+            throw new UsuarioException("La contraseña debe tener al menos una mayúscula");
+
+        if (!password.matches(".*[a-z].*"))
+            throw new UsuarioException("La contraseña debe tener al menos una minúscula");
+
+        if (!password.matches(".*\\d.*"))
+            throw new UsuarioException("La contraseña debe tener al menos un número");
+
+        if (!password.matches(".*[@#$%!].*"))
+            throw new UsuarioException("La contraseña debe tener un carácter especial (@#$%!)");
     }
 }
+
+
 
 
 

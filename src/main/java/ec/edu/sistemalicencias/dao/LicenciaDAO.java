@@ -60,7 +60,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setString(1, licencia.getNumeroLicencia());
@@ -112,7 +112,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
         PreparedStatement stmt = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
 
             stmt.setString(1, licencia.getNumeroLicencia());
@@ -159,7 +159,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, id);
 
@@ -192,7 +192,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
         ResultSet rs = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, numeroLicencia);
 
@@ -226,7 +226,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
         List<Licencia> licencias = new ArrayList<>();
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, conductorId);
 
@@ -259,7 +259,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
         List<Licencia> licencias = new ArrayList<>();
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
 
@@ -291,7 +291,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
         List<Licencia> licencias = new ArrayList<>();
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
 
@@ -322,7 +322,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
         PreparedStatement stmt = null;
 
         try {
-            conn = dbConfig.obtenerConexion();
+            conn = dbConfig.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setLong(1, id);
 
@@ -385,7 +385,7 @@ public class LicenciaDAO implements Persistible<Licencia> {
           AND fecha_vencimiento > CURDATE()
     """;
 
-        try (Connection conn = dbConfig.obtenerConexion();
+        try (Connection conn = dbConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setLong(1, conductorId);
